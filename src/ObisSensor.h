@@ -1,5 +1,6 @@
 #include <list>
 #include "SoftwareSerial.h"
+#include "ObisHelp.h"
 #include "Prometheus.h"
 
 using namespace std;
@@ -33,7 +34,8 @@ class ObisSensor
     unique_ptr<SoftwareSerial> serial;
     byte buffer[BUFFER_SIZE];
     size_t last_message_size = 0;
-    String name = "obis_";
+    String obis_code = "";
+    String metric_name = "";
     String value = "";
 
     void read()
@@ -81,7 +83,7 @@ class ObisSensor
             {
                 // OBIS code coming up
                 phase = 1;
-                name = "obis_";
+                obis_code = "";
                 value = "";
             }
             else if (phase == 1 && buffer[i] == '*')
@@ -97,8 +99,12 @@ class ObisSensor
             else if (phase == 3 && (buffer[i] == '*' || buffer[i] == ')'))
             {
                 // Summarize this line in openmetrics format
-                Gauge *g = new Gauge(name, "");
+                metric_name = "obis_" + obis_code;
+                metric_name.replace('.', '_');
+                Gauge *g = new Gauge(metric_name, get_obis_help(obis_code));
                 g->set(value);
+
+                // Collect
                 gauges->push_back(g);
 
                 // back to "search" phase
@@ -109,14 +115,7 @@ class ObisSensor
                 // Not a transition character -> Collect
                 if (phase == 1)
                 {
-                    if (buffer[i] == '.')
-                    {
-                        name += '_';
-                    }
-                    else
-                    {
-                        name += char(buffer[i]);
-                    }
+                    obis_code += char(buffer[i]);
                 }
                 else if (phase == 3)
                 {
