@@ -1,9 +1,28 @@
-#include <Arduino.h>
+#include <list>
+#include "ObisSensor.h"
 
-void setup() {
-  // put your setup code here, to run once:
+std::list<ObisSensor *> *sensors = new std::list<ObisSensor *>();
+
+void setup()
+{
+    // Set up debugging via serial
+    Serial.begin(115200);
+
+    // Configure IR sensors
+    Serial.println("Setting up sensors");
+    ObisSensor *sensor = new ObisSensor(D2);
+    sensors->push_back(sensor);
+
+    Serial.println("Setup completed.");
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void loop()
+{
+    // Execute sensor state machines
+    for (std::list<ObisSensor*>::iterator it = sensors->begin(); it != sensors->end(); ++it)
+    {
+        (*it)->loop();
+    }
+
+    yield();
 }
