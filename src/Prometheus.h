@@ -26,12 +26,12 @@ class Gauge
     }
 };
 
-String render(std::list<Gauge *> *gauges)
+String render(std::list<Gauge> *gauges)
 {
     String metrics = "";
-    for (std::list<Gauge*>::iterator g = gauges->begin(); g != gauges->end(); ++g)
+    for (std::list<Gauge>::iterator g = gauges->begin(); g != gauges->end(); ++g)
     {
-        metrics += (*g)->toString();
+        metrics += g->toString();
     }
     return metrics;
 }

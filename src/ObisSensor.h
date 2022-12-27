@@ -11,7 +11,7 @@ const byte END_SEQUENCE[] = {0x21, 0x0D, 0x0A};
 const size_t BUFFER_SIZE = 3840;
 
 
-void extract_gauges(std::list<Gauge *> *gauges, size_t last_message_size, char *buffer)
+void extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *buffer)
 {
     String obis_code = "";
     String metric_name = "";
@@ -46,8 +46,8 @@ void extract_gauges(std::list<Gauge *> *gauges, size_t last_message_size, char *
             metric_name = "obis_" + obis_code;
             metric_name.replace('.', '_');
             metric_help = get_obis_help(obis_code);
-            Gauge *g = new Gauge(metric_name, metric_help);
-            g->set(value);
+            Gauge g = Gauge(metric_name, metric_help);
+            g.set(value);
 
             // Collect
             gauges->push_back(g);
@@ -74,7 +74,7 @@ class ObisSensor
 {
     public:
     char *serialnumber;
-    std::list<Gauge *> *gauges = new std::list<Gauge *>();
+    std::list<Gauge> *gauges = new std::list<Gauge>();
     String metrics = "";
 
     ObisSensor(uint8_t rx_pin)
