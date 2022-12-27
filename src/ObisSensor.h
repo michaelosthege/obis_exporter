@@ -34,9 +34,6 @@ class ObisSensor
     unique_ptr<SoftwareSerial> serial;
     byte buffer[BUFFER_SIZE];
     size_t last_message_size = 0;
-    String obis_code = "";
-    String metric_name = "";
-    String value = "";
 
     void read()
     {
@@ -74,6 +71,11 @@ class ObisSensor
 
     void extract_gauges(std::list<Gauge *> *gauges, size_t last_message_size)
     {
+        String obis_code = "";
+        String metric_name = "";
+        String metric_help = "";
+        String value = "";
+
         // Extract current metrics from message
         uint8 phase = 0;  // 0: searching, 1: obis code, 2: value
         for (size_t i = 0; i < last_message_size; i++)
@@ -98,10 +100,11 @@ class ObisSensor
             }
             else if (phase == 3 && (buffer[i] == '*' || buffer[i] == ')'))
             {
-                // Summarize this line in openmetrics format
+                // Summarize this as a Prometheus Gauge object
                 metric_name = "obis_" + obis_code;
                 metric_name.replace('.', '_');
-                Gauge *g = new Gauge(metric_name, get_obis_help(obis_code));
+                metric_help = get_obis_help(obis_code);
+                Gauge *g = new Gauge(metric_name, metric_help);
                 g->set(value);
 
                 // Collect
