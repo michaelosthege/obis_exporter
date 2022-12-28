@@ -26,7 +26,7 @@ void handleMetrics()
     String metrics = "";
     for (std::list<ObisSensor*>::iterator sens = sensors->begin(); sens != sensors->end(); ++sens)
     {
-        metrics += render((*sens)->gauges);
+        metrics += (*sens)->metrics;
     }
     server.send(200, "text/plain", metrics);
     Serial.println(metrics);
