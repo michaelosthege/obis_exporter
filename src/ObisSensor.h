@@ -100,6 +100,14 @@ class ObisSensor
         read();
     }
 
+    void interrupt()
+    {
+        // This is called when the webserver processes a request,
+        // to notify the data receival loop to discard any ongoing
+        // message transfer, which could be corrupted by the distraction.
+        found_start = false;
+    }
+
     private:
     unique_ptr<SoftwareSerial> serial;
     byte buffer[BUFFER_SIZE];
