@@ -25,6 +25,18 @@ String get_obis_help(String obis_code)
     if (obis_code == "76.7.0") {
         return "Current power on L3";
     }
+    if (obis_code == "1.7.0") {
+        return "Positive active instantaneous power (A+) [kW]";
+    }    
+    if (obis_code == "21.7.0") {
+        return "Positive active instantaneous power (A+) in phase L1 [kW]";
+    }
+    if (obis_code == "41.7.0") {
+        return "Positive active instantaneous power (A+) in phase L2 [kW]";
+    }
+    if (obis_code == "61.7.0") {
+        return "Positive active instantaneous power (A+) in phase L3 [kW]";
+    }
     if (obis_code == "32.7.0") {
         return "Voltage on L1";
     }
