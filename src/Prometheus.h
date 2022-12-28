@@ -1,8 +1,16 @@
-class Gauge
+class Metric
 {
     public:
     String Name;
     String Help;
+
+    virtual String toString() = 0;
+};
+
+
+class Gauge : public virtual Metric
+{
+    public:
     String Value;
 
     Gauge(String name, String help)
