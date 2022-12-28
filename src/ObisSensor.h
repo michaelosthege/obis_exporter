@@ -93,22 +93,33 @@ class ObisSensor
     private:
     unique_ptr<SoftwareSerial> serial;
     byte buffer[BUFFER_SIZE];
+    size_t position = 0;
     size_t last_message_size = 0;
 
     void read()
     {
         while (serial->available())
         {
-            // Read one byte into the first position of the buffer
-            buffer[0] = serial->read();
+            buffer[position] = serial->read();
 
             // Is this the start marker "/"?
-            if (buffer[0] == 0x21)
+            if (buffer[position] == '/')
             {
-                // Read until the end marker
-                last_message_size = serial->readBytesUntil('!', (char*) buffer, BUFFER_SIZE);
-                process_message();
+                // Start marker encountered!
+                position = 0;
             }
+            else if (buffer[position] == '!')
+            {
+                // End marker encountered!
+                last_message_size = position;
+                process_message();
+                position = 0;
+            }
+            else if (position == BUFFER_SIZE - 2)
+            {
+                position = 0;
+            }
+            position += 1;
 
             yield();
         }
