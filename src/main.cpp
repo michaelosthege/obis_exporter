@@ -10,8 +10,8 @@ void setup()
 
     // Configure IR sensors
     Serial.println("Setting up sensors");
-    ObisSensor *sensor = new ObisSensor(D2);
-    sensors->push_back(sensor);
+    sensors->push_back(new ObisSensor(D2));
+    sensors->push_back(new ObisSensor(D5));
 
     Serial.println("Setup completed.");
 }
