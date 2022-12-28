@@ -61,6 +61,10 @@ void extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *bu
             // back to "search" phase
             phase = 0;
         }
+        else if (buffer[i] == '\n' || buffer[i] == '\r')
+        {
+            phase = 0;
+        }
         else
         {
             // Not a transition character -> Collect
