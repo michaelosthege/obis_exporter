@@ -13,6 +13,7 @@ const size_t BUFFER_SIZE = 3840;
 
 void extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *buffer)
 {
+    String device_id = "";
     String obis_code = "";
     String metric_name = "";
     String metric_help = "";
@@ -42,11 +43,16 @@ void extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *bu
         }
         else if (phase == 3 && (buffer[i] == '*' || buffer[i] == ')'))
         {
+            if (obis_code == "0.0.0")
+            {
+                device_id = value;
+            }
+
             // Summarize this as a Prometheus Gauge object
             metric_name = "obis_" + obis_code;
             metric_name.replace('.', '_');
             metric_help = get_obis_help(obis_code);
-            Gauge g = Gauge(metric_name, metric_help);
+            Gauge g = Gauge(metric_name, metric_help, "serial=\"" + device_id + "\"");
             g.set(value);
 
             // Collect

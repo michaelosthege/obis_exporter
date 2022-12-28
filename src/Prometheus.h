@@ -3,6 +3,7 @@ class Metric
     public:
     String Name;
     String Help;
+    String Attributes;
 
     virtual String toString() = 0;
 };
@@ -13,10 +14,11 @@ class Gauge : public virtual Metric
     public:
     String Value;
 
-    Gauge(String name, String help)
+    Gauge(String name, String help, String attributes)
     {
         this->Name = name;
         this->Help = help;
+        this->Attributes = attributes;
     }
 
     void set(String value)
@@ -29,7 +31,7 @@ class Gauge : public virtual Metric
         return (
             "# " + Name + " " + Help + "\n" +
             "# TYPE " + Name + " gauge\n" +
-            Name + " " + Value + "\n"
+            Name + "{" + Attributes + "}" + " " + Value + "\n"
         );
     }
 };
