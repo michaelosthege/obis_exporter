@@ -103,6 +103,7 @@ class ObisSensor
     private:
     unique_ptr<SoftwareSerial> serial;
     byte buffer[BUFFER_SIZE];
+    bool found_start = false;
     size_t position = 0;
     size_t last_message_size = 0;
 
@@ -117,22 +118,25 @@ class ObisSensor
             {
                 // Start marker encountered!
                 position = 0;
+                found_start = true;
             }
-            else if (buffer[position] == '!')
+            else if (found_start && buffer[position] == '!')
             {
                 // End marker encountered!
                 last_message_size = position;
                 process_message();
                 position = 0;
+                found_start = false;
             }
             else if (position == BUFFER_SIZE - 2)
             {
                 position = 0;
+                found_start = false;
             }
             position += 1;
 
-            yield();
         }
+        yield();
     }
 
     void process_message()
@@ -147,6 +151,7 @@ class ObisSensor
 
         metrics = render(gauges);
 
-        Serial.println(metrics);
+        // Serial.println(metrics);
+        Serial.println("Total: " + String(gauges->size()));
     }
 };
