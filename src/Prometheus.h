@@ -29,7 +29,7 @@ class Gauge : public virtual Metric
     String toString()
     {
         return (
-            "# " + Name + " " + Help + "\n" +
+            "# HELP " + Name + " " + Help + "\n" +
             "# TYPE " + Name + " gauge\n" +
             Name + "{" + Attributes + "}" + " " + Value + "\n"
         );

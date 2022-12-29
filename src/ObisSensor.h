@@ -11,6 +11,19 @@ const byte END_SEQUENCE[] = {0x21, 0x0D, 0x0A};
 const size_t BUFFER_SIZE = 3840;
 
 
+bool isNumeric(String text)
+{
+    for (size_t i = 0; i < text.length(); i++)
+    {
+        if (!isdigit(text[i]) && text[i] != '.')
+        {
+            return false;
+        }
+    }    
+    return true;
+}
+
+
 void extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *buffer)
 {
     String device_id = "";
@@ -49,14 +62,22 @@ void extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *bu
             }
 
             // Summarize this as a Prometheus Gauge object
-            metric_name = "obis_" + obis_code;
-            metric_name.replace('.', '_');
-            metric_help = get_obis_help(obis_code);
-            Gauge g = Gauge(metric_name, metric_help, "serial=\"" + device_id + "\"");
-            g.set(value);
+            if (isNumeric(value))
+            {
+                // Prometheus Gauges must be numeric
+                metric_name = "obis_" + obis_code;
+                metric_name.replace('.', '_');
+                metric_help = get_obis_help(obis_code);
+                Gauge g = Gauge(metric_name, metric_help, "serial=\"" + device_id + "\"");
+                g.set(value);
 
-            // Collect
-            gauges->push_back(g);
+                // Collect
+                gauges->push_back(g);
+            }
+            else
+            {
+                Serial.println("Skipped " + obis_code + " with non-numeric value '" + value + "'.");
+            }
 
             // back to "search" phase
             phase = 0;
