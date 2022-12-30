@@ -15,7 +15,7 @@ bool isNumeric(String text)
 {
     for (size_t i = 0; i < text.length(); i++)
     {
-        if (!isdigit(text[i]) && text[i] != '.')
+        if (!isdigit(text[i]) && text[i] != '.' && text[i] != '-')
         {
             return false;
         }
