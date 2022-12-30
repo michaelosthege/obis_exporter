@@ -23,6 +23,25 @@ bool isNumeric(String text)
     return true;
 }
 
+bool isObis(String text)
+{
+    for (size_t i = 0; i < text.length(); i++)
+    {
+        // No leading zeroes
+        if (i > 0 && isdigit(text[i]) && text[i-1] == '0')
+        {
+            return false;
+        }
+
+        // Only numbers and dots
+        if (!isdigit(text[i]) && text[i] != '.')
+        {
+            return false;
+        }
+    }    
+    return true;
+}
+
 
 bool extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *buffer)
 {
@@ -47,7 +66,15 @@ bool extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *bu
         else if (phase == 1 && buffer[i] == '*')
         {
             // End of OBIS code
-            phase = 2;
+            if (!isObis(obis_code))
+            {
+                // Skip this row because of transmission errors in the OBIS code
+                phase = 0;
+            }
+            else
+            {
+                phase = 2;
+            }
         }
         else if (phase == 2 && buffer[i] == '(')
         {
