@@ -24,7 +24,7 @@ bool isNumeric(String text)
 }
 
 
-void extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *buffer)
+bool extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *buffer)
 {
     String device_id = "";
     String obis_code = "";
@@ -59,6 +59,16 @@ void extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *bu
             if (obis_code == "0.0.0")
             {
                 device_id = value;
+            }
+
+            // Only proceed if we have the serial number.
+            // Otherweise the metric attributes would be incomplete!
+            if (device_id.length() == 0)
+            {
+                // Abort extraction because the device ID was no identified
+                Serial.println("ERR: Device ID not found.");
+                gauges->clear();
+                return false;
             }
 
             // Summarize this as a Prometheus Gauge object
@@ -99,6 +109,7 @@ void extract_gauges(std::list<Gauge> *gauges, size_t last_message_size, char *bu
             }
         }
     }
+    return true;
 }
 
 class ObisSensor
@@ -176,11 +187,11 @@ class ObisSensor
         }
 
         gauges->clear();
-        extract_gauges(gauges, last_message_size, (char*) buffer);
-
-        metrics = render(gauges);
-
-        // Serial.println(metrics);
-        Serial.println("Total: " + String(gauges->size()));
+        bool success = extract_gauges(gauges, last_message_size, (char*) buffer);
+        if (success)
+        {
+            metrics = render(gauges);
+            Serial.println("Rendered " + String(gauges->size()) + " metrics.");
+        }
     }
 };
